@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from config import *
 import os, json, requests, pandas as pd, msal
 
+
 load_dotenv()
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 log = logging.getLogger(__name__)
@@ -245,9 +246,9 @@ def obtener_aperturas_sendgrid():
 # 6. ENVIAR CORREO
 # ─────────────────────────────────────────────
 def enviar_correo(row):
-    nombre      = str(row[COL_NOMBRE_POLIZAS]).split()[0]
-    email       = str(row[COL_EMAIL_POLIZAS]).strip()
-    id_aseg     = str(row[COL_ID_POLIZAS]).strip()
+    nombre = str(row[COL_NOMBRE_POLIZAS]).split()[0]
+    email = str(row[COL_EMAIL_POLIZAS]).strip()
+    id_aseg = str(row[COL_ID_POLIZAS]).strip()
     survey_link = SURVEY_BASE_URL
 
     with open("templates/email.html", "r", encoding="utf-8") as f:
@@ -258,39 +259,23 @@ def enviar_correo(row):
     html = html.replace("{{ID}}", id_aseg)
     html = html.replace("{{id_aseg}}", id_aseg)
 
-    # Usar Graph API para enviar correo
-    result = get_token()
-    if "access_token" not in result:
-        log.error("❌ No se pudo obtener token para enviar correo")
-        return False
-
-    headers = {
-        "Authorization": f"Bearer {result['access_token']}",
-        "Content-Type": "application/json"
-    }
-
-    message = {
-    "message": {
-        "subject": f"Tu póliza - Solicitud de información",
-        "body": {"contentType": "HTML", "content": html},
-        "toRecipients": [{"emailAddress": {"address": email}}],
-        "from": {
-            "emailAddress": {
-                "address": FROM_EMAIL,
-                "name": FROM_NAME   # Aquí se muestra el alias
-            }
-        }
-    },
-    "saveToSentItems": "true"
-}
-
-    r = requests.post("https://graph.microsoft.com/v1.0/me/sendMail", headers=headers, json=message)
-    if r.status_code in [200, 202]:
-        log.info(f"✅ Correo enviado a {email} ({id_aseg})")
-        # Devuelves un diccionario con los estados para actualizar el control
-        return {"Enviado": True, "Entregado": True, "Rebotado": False}
-    else:
-        log.error(f"❌ Error enviando a {email}: {r.status_code} {r.text}")
+    try:
+        sg = SendGridAPIClient(os.getenv("SENDGRID_API_KEY"))
+        message = Mail(
+            from_email='administrativo@zenguseguros.com',
+            to_emails=email,
+            subject='Tu póliza - Solicitud de información',
+            html_content=html
+        )
+        response = sg.send(message)
+        if response.status_code == 202:
+            log.info(f"✅ Correo enviado a {email} ({id_aseg})")
+            return {"Enviado": True, "Entregado": True, "Rebotado": False}
+        else:
+            log.warning(f"⚠️ SendGrid status: {response.status_code}")
+            return {"Enviado": True, "Entregado": False, "Rebotado": True}
+    except Exception as e:
+        log.error(f"❌ Error enviando a {email}: {e}")
         return {"Enviado": True, "Entregado": False, "Rebotado": True}
 
 # ─────────────────────────────────────────────

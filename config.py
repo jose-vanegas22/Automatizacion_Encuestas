@@ -38,3 +38,6 @@ COL_ID_ENCUESTA  = "Número de identificación (Sin puntos)"
 
 MS_EMAIL    = os.getenv("MS_EMAIL")
 MS_PASSWORD = os.getenv("MS_PASSWORD")
+
+
+SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
