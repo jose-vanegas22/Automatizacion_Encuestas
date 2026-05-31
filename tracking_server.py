@@ -58,5 +58,37 @@ def tracking():
     # Devolver pixel transparente
     return send_file("pixel.png", mimetype="image/png")
 
+
+@app.route("/sendgrid/events", methods=["POST"])
+def sendgrid_events():
+    events = request.get_json(force=True)
+
+    if os.path.exists("control.xlsx"):
+        df = pd.read_excel("control.xlsx")
+    else:
+        return "No existe control.xlsx", 400
+
+    for event in events:
+        email = event.get("email", "").lower().strip()
+        tipo  = event.get("event")
+        fecha = datetime.fromtimestamp(event.get("timestamp", datetime.now().timestamp()))
+
+        idx = df[df["Email"] == email].index
+        if not idx.empty:
+            i = idx[0]
+            if tipo == "open":
+                df.at[i, "Abrió"] = True
+                df.at[i, "Fecha Ape"] = fecha.strftime("%Y-%m-%d %H:%M")
+            elif tipo == "click":
+                df.at[i, "Respondió"] = True
+                df.at[i, "Fecha Enc"] = fecha.strftime("%Y-%m-%d %H:%M")
+            elif tipo == "bounce":
+                df.at[i, "Rebotado"] = True
+            elif tipo == "delivered":
+                df.at[i, "Entregado"] = True
+
+    df.to_excel("control.xlsx", index=False)
+    return "OK", 200
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
