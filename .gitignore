@@ -1,0 +1,18 @@
+# Entornos virtuales
+venv/
+__pycache__/
+
+# Archivos de configuración sensibles
+.env
+token_cache.json
+
+# Archivos de datos locales
+data/
+*.xlsx
+*.xls
+*.csv
+
+# Archivos temporales
+*.log
+*.tmp
+*.bak

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Encuesta de Satisfacción</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f4f6f9; font-family: Arial, sans-serif;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f9; padding: 40px 0;">
+    <tr>
+      <!-- Contenedor principal -->
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:8px; overflow:hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+
+          <!-- Header -->
+          <tr>
+            <td style="background-color:#1a3c6e; padding: 32px 40px; text-align:center;">
+              <h1 style="color:#ffffff; margin:0; font-size:22px; letter-spacing:1px;">
+                🛡️ Tu Aseguradora
+              </h1>
+              <p style="color:#a8c4e0; margin:8px 0 0; font-size:13px;">
+                Gestión de Pólizas
+              </p>
+            </td>
+          </tr>
+
+          <!-- Saludo -->
+          <tr>
+            <td style="padding: 36px 40px 0;">
+              <p style="font-size:16px; color:#333; margin:0;">
+                Hola, <strong>{{NOMBRE}}</strong> 👋
+              </p>
+              <p style="font-size:15px; color:#555; line-height:1.7; margin-top:16px;">
+                Esperamos que todo esté muy bien. Nos comunicamos contigo en relación a tu póliza
+                activa con nosotros y quisiéramos conocer tu experiencia.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Datos de la póliza -->
+          <tr>
+            <td style="padding: 24px 40px;">
+              <table width="100%" cellpadding="0" cellspacing="0"
+                style="background:#f0f4fa; border-radius:6px; padding:20px; border-left: 4px solid #1a3c6e;">
+                <tr>
+                  <td style="padding:4px 16px;">
+                    <p style="margin:0; font-size:13px; color:#888;">Póliza</p>
+                    <p style="margin:4px 0 12px; font-size:15px; color:#222; font-weight:bold;">{{POLIZA}}</p>
+                  </td>
+                  <td style="padding:4px 16px;">
+                    <p style="margin:0; font-size:13px; color:#888;">Ramo</p>
+                    <p style="margin:4px 0 12px; font-size:15px; color:#222; font-weight:bold;">{{RAMO}}</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:4px 16px;">
+                    <p style="margin:0; font-size:13px; color:#888;">Aseguradora</p>
+                    <p style="margin:4px 0 0; font-size:15px; color:#222; font-weight:bold;">{{ASEGURADORA}}</p>
+                  </td>
+                  <td style="padding:4px 16px;">
+                    <p style="margin:0; font-size:13px; color:#888;">Vigencia</p>
+                    <p style="margin:4px 0 0; font-size:15px; color:#222; font-weight:bold;">{{INICIO}} → {{FIN}}</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Mensaje encuesta -->
+          <tr>
+            <td style="padding: 0 40px;">
+              <p style="font-size:15px; color:#555; line-height:1.7;">
+                Tu opinión es muy importante para nosotros. La encuesta toma menos de
+                <strong>2 minutos</strong> y nos ayuda a mejorar el servicio que te ofrecemos.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Botón -->
+          <tr>
+            <td style="padding: 28px 40px;" align="center">
+              <a href="{{SURVEY_LINK}}"
+                style="background-color:#1a3c6e; color:#ffffff; text-decoration:none;
+                       padding:14px 36px; border-radius:6px; font-size:16px;
+                       font-weight:bold; display:inline-block; letter-spacing:0.5px;">
+                📝 Completar encuesta
+              </a>
+            </td>
+          </tr>
+
+          <!-- Nota ID -->
+          <tr>
+            <td style="padding: 0 40px 16px;" align="center">
+              <p style="font-size:12px; color:#aaa; margin:0;">
+                Este enlace es personal y está asociado a tu ID: <strong>{{ID}}</strong>
+              </p>
+            </td>
+          </tr>
+
+          <!-- Divider -->
+          <tr>
+            <td style="padding: 0 40px;">
+              <hr style="border:none; border-top:1px solid #eee; margin:0;">
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 24px 40px;" align="center">
+              <p style="font-size:12px; color:#aaa; margin:0; line-height:1.8;">
+                Si tienes alguna duda puedes responder directamente a este correo.<br/>
+                © 2026 Tu Aseguradora · Todos los derechos reservados
+              </p>
+            </td>
+          </tr>
+
+        </table>
+        <!-- fin contenedor -->
+
+      </td>
+    </tr>
+  </table>
+  <img src="https://servidor-detector-correos-abiertos.onrender.com/tracking?id={{id_aseg}}" width="1" height="1" style="display:none;" />
+
+
+</body>
+</html>
