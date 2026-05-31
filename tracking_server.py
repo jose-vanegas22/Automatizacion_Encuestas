@@ -1,9 +1,12 @@
-from flask import Flask, request, send_file
+from flask import Flask, request, send_file, redirect
 import pandas as pd
 from datetime import datetime
 import os
 
 app = Flask(__name__)
+
+SURVEY_BASE_URL = os.getenv("SURVEY_BASE_URL")
+
 
 # Inicializar control.xlsx si no existe
 def init_control():
@@ -16,6 +19,7 @@ def init_control():
         ])
         df.to_excel("control.xlsx", index=False)
 
+# Pixel de apertura
 @app.route("/tracking")
 def tracking():
     id_aseg = request.args.get("id")
@@ -25,25 +29,21 @@ def tracking():
         try:
             df = pd.read_excel("control.xlsx")
 
-            # Validar que existan las columnas necesarias
             for col in ["ID Asegurado", "Abrió", "Fecha Ape"]:
                 if col not in df.columns:
                     df[col] = None
 
-            # Buscar el ID en la columna correcta
             try:
                 id_aseg_int = int(id_aseg)
             except ValueError:
-                id_aseg_int = id_aseg  # si no es número, usar texto
+                id_aseg_int = id_aseg
 
             idx = df[df["ID Asegurado"] == id_aseg_int].index
 
             if not idx.empty:
-                # Actualizar registro existente
                 df.at[idx[0], "Abrió"] = True
                 df.at[idx[0], "Fecha Ape"] = datetime.now().strftime("%Y-%m-%d %H:%M")
             else:
-                # Agregar nuevo registro si el ID no existe
                 df = pd.concat([df, pd.DataFrame([{
                     "ID Asegurado": id_aseg_int,
                     "Abrió": True,
@@ -55,40 +55,27 @@ def tracking():
         except Exception as e:
             print("Error al actualizar control.xlsx:", e)
 
-    # Devolver pixel transparente
     return send_file("pixel.png", mimetype="image/png")
 
+# Clic en el botón de encuesta
+@app.route("/click")
+def click():
+    id_aseg = request.args.get("id")
+    init_control()
 
-@app.route("/sendgrid/events", methods=["POST"])
-def sendgrid_events():
-    events = request.get_json(force=True)
+    if id_aseg:
+        try:
+            df = pd.read_excel("control.xlsx")
+            idx = df[df["ID Asegurado"] == id_aseg].index
+            if not idx.empty:
+                df.at[idx[0], "Respondió"] = True
+                df.at[idx[0], "Fecha Enc"] = datetime.now().strftime("%Y-%m-%d %H:%M")
+                df.to_excel("control.xlsx", index=False)
+        except Exception as e:
+            print("Error al actualizar control.xlsx:", e)
 
-    if os.path.exists("control.xlsx"):
-        df = pd.read_excel("control.xlsx")
-    else:
-        return "No existe control.xlsx", 400
+    return redirect(SURVEY_BASE_URL, code=302)
 
-    for event in events:
-        email = event.get("email", "").lower().strip()
-        tipo  = event.get("event")
-        fecha = datetime.fromtimestamp(event.get("timestamp", datetime.now().timestamp()))
-
-        idx = df[df["Email"] == email].index
-        if not idx.empty:
-            i = idx[0]
-            if tipo == "open":
-                df.at[i, "Abrió"] = True
-                df.at[i, "Fecha Ape"] = fecha.strftime("%Y-%m-%d %H:%M")
-            elif tipo == "click":
-                df.at[i, "Respondió"] = True
-                df.at[i, "Fecha Enc"] = fecha.strftime("%Y-%m-%d %H:%M")
-            elif tipo == "bounce":
-                df.at[i, "Rebotado"] = True
-            elif tipo == "delivered":
-                df.at[i, "Entregado"] = True
-
-    df.to_excel("control.xlsx", index=False)
-    return "OK", 200
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
